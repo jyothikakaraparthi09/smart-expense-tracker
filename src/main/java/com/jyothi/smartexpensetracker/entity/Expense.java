@@ -1,9 +1,6 @@
 package com.jyothi.smartexpensetracker.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
@@ -18,6 +15,9 @@ public class Expense {
     private double amount;
     private String category;
     private LocalDate date;
+
+    @ManyToOne
+    private User user;
 
     public Expense(){}
 
@@ -67,4 +67,8 @@ public class Expense {
     public void setDate(LocalDate date) {
         this.date = date;
     }
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user;  }
 }

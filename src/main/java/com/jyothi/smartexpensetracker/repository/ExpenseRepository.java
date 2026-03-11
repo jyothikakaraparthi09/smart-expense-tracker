@@ -2,26 +2,36 @@ package com.jyothi.smartexpensetracker.repository;
 
 import com.jyothi.smartexpensetracker.dto.CategorySummary;
 import com.jyothi.smartexpensetracker.entity.Expense;
+import com.jyothi.smartexpensetracker.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
-    List<Expense> findByCategory(String category);
+
+    List<Expense> findByCategoryAndUserUsername(String category, String username);
+
+    List<Expense> findByUserUsername(String username);
+
+    Optional<Expense> findByIdAndUserUsername(Long id,String username);
 
     @Query("""
     SELECT e.category AS category, SUM(e.amount) as total FROM Expense e 
-    WHERE MONTH(e.date) = :month
+    WHERE e.user.username = :username
+        AND MONTH(e.date) = :month
         AND YEAR(e.date) = :year
     GROUP BY e.category
     """)
-    List<CategorySummary> getMonthlySummary(int month, int year);
+    List<CategorySummary> getMonthlySummary(String username, int month, int year);
 
     @Query("""
-    SELECT e.category AS category, SUM(e.amount) as total FROM Expense e GROUP BY e.category ORDER BY total DESC
+    SELECT e.category AS category, SUM(e.amount) as total FROM Expense e 
+        where e.user.username = :username
+            GROUP BY e.category ORDER BY total DESC
     """)
-    List<CategorySummary> findCategorySummary();
+    List<CategorySummary> findCategorySummary(String username);
 
     @Query("SELECT SUM(amount) from Expense")
     Long getTotalAmountSpent();

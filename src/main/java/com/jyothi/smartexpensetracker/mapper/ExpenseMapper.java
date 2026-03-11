@@ -11,6 +11,7 @@ import java.util.List;
 @Component
 public class ExpenseMapper {
 
+
     public Expense toEntity(ExpenseRequestDTO requestDTO){
         Expense expense = new Expense();
         expense.setTitle(requestDTO.title());
