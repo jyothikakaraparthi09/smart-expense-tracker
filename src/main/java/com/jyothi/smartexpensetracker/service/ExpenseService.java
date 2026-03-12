@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Service
 public class ExpenseService {
@@ -25,6 +26,7 @@ public class ExpenseService {
 
     private final ExpenseMapper mapper;
 
+    Logger log = Logger.getLogger(ExpenseService.class.getName());
    public ExpenseService(ExpenseRepository expenseRepository, UserRepository userRepository, ExpenseMapper mapper){
 
         this.expenseRepository = expenseRepository;
@@ -52,6 +54,7 @@ public class ExpenseService {
     public List<ExpenseResponseDTO> getAllExpenses(){
 
         String username = SecurityUtility.getCurrentUsername();
+        log.info("Username: {}"+username);
         List<ExpenseResponseDTO> expenseDTOs = mapper.toListDTOs(expenseRepository.findByUserUsername(username));
         return expenseDTOs;
     }

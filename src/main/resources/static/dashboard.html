@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/style.css">
+    <title>My Expenses Dashboard</title>
+</head>
+<body>
+<h2>My Expenses</h2>
+<div class="container">
+<br>
+<button onclick="goToAddExpense()">Add Expense</button>
+<br>
+<button onclick="loadExpenses()">Load Expenses</button>
+<ul id="expenseList"></ul>
+</div>
+<script>
+    function goToAddExpense(){
+        window.location.href="/add-expense.html"
+    }
+
+    async function loadExpenses(){
+        const token = localStorage.getItem("token");
+        const response = await fetch("/expenses",{
+            headers: { "Authorization": "Bearer "+token}
+        });
+
+        const expenses = await response.json();
+
+        const list = document.getElementById("expenseList");
+
+        list.innerHTML = "";
+
+        expenses.forEach(exp => {
+            const item = document.createElement("li");
+            item.innerText = exp.title + " : " +exp.amount;
+
+            list.appendChild(item);
+        });
+    }
+</script>
+</body>
+</html>

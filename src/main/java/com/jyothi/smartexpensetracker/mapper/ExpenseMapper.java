@@ -7,10 +7,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Component
 public class ExpenseMapper {
 
+    Logger log = Logger.getLogger(ExpenseMapper.class.getName());
 
     public Expense toEntity(ExpenseRequestDTO requestDTO){
         Expense expense = new Expense();
@@ -37,6 +39,7 @@ public class ExpenseMapper {
         List<ExpenseResponseDTO> expenseDTOs = new LinkedList<>();
 
         for(Expense expense: expenses){
+            log.info("Expense: "+ expense.getTitle() + " "+ expense.getAmount());
             expenseDTOs.add(toDTO(expense));
         }
         return expenseDTOs;
