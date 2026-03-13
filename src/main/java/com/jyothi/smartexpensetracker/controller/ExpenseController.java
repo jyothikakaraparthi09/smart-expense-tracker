@@ -2,7 +2,9 @@ package com.jyothi.smartexpensetracker.controller;
 
 import com.jyothi.smartexpensetracker.dto.ExpenseRequestDTO;
 import com.jyothi.smartexpensetracker.dto.ExpenseResponseDTO;
+import com.jyothi.smartexpensetracker.dto.PageResponse;
 import com.jyothi.smartexpensetracker.service.ExpenseService;
+import com.jyothi.smartexpensetracker.utility.SecurityUtility;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -24,8 +26,8 @@ public class ExpenseController {
     @Operation(summary = "Creates a new expense")
     @PostMapping
     public ExpenseResponseDTO addExpense(@Valid @RequestBody ExpenseRequestDTO requestDTO){
-
-        return service.createExpense(requestDTO);
+        String username = SecurityUtility.getCurrentUsername();
+        return service.createExpense(username,requestDTO);
     }
 
     @Operation(summary = "Get expense by ID")
@@ -36,15 +38,35 @@ public class ExpenseController {
 
     @Operation(summary = "Gets all expenses ")
     @GetMapping
-    public Page<ExpenseResponseDTO> getAllExpenses(@RequestParam int size,@RequestParam int page){
-        return service.getAllExpenses(page,size);
+    public PageResponse<ExpenseResponseDTO> getAllExpenses(@RequestParam int size,@RequestParam int page){
+        String username = SecurityUtility.getCurrentUsername();
+        Page<ExpenseResponseDTO> expensePage = service.getAllExpenses(username,page,size);
+        return new PageResponse<>(
+                expensePage.getContent(),
+                expensePage.getNumber(),
+                expensePage.getSize(),
+                expensePage.getTotalElements(),
+                expensePage.getTotalPages(),
+                expensePage.isFirst(),
+                expensePage.isLast()
+        );
     }
 
     @Operation(summary = "Gets all expenses based on the category")
     @GetMapping("/category/{category}")
-    public Page<ExpenseResponseDTO> getByCategory(@PathVariable String category, @RequestParam int size, @RequestParam int page)
+    public PageResponse<ExpenseResponseDTO> getByCategory(@PathVariable String category, @RequestParam int size, @RequestParam int page)
     {
-        return service.getExpensesByCategory(category,size, page);
+        Page<ExpenseResponseDTO> expensePage = service.getExpensesByCategory(category,size, page);
+
+        return new PageResponse<>(
+                expensePage.getContent(),
+                expensePage.getNumber(),
+                expensePage.getSize(),
+                expensePage.getTotalElements(),
+                expensePage.getTotalPages(),
+                expensePage.isFirst(),
+                expensePage.isLast()
+        );
     }
 
     @Operation(summary = "Updates the expense with new data ")

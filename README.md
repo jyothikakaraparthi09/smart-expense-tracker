@@ -1,22 +1,51 @@
 # smart-expense-tracker
-this smart application tracker, tracks the expenses spent and categorizes based on category. It also includes multiple features like identifying the total based on category, listing all the expenses, and so on..
+This smart expense tracker application built using Spring Boot with JWT authentication and a simple UI dashboard with pagination.
 
-Smart Expense Tracker
+##Features
+
+-User Registration & Login
+-JWT Authentication
+-Caching Expenses based on user
+-Add / Update / Delete Expenses
+-Pagination for expenses listing
+-Category wise expense 
+-Listing top spent category
+-Listing total expense amount
 
 Tech Stack
+
+Backend:
 - Java
 - Spring Boot
+- Spring Security
 - Spring Data JPA
-- MySQL
+- JWT Authentication
 - REST APIs
 
-Features
-- Expense CRUD APIs
-- DTO using java records
-- Validation
-- Global Exception Handling
-- Custom Exceptions
-- Swagger API Documentation
+Database:
+-H2/MySQL
 
-Swagger UI is available at:
-http://localhost:8080/swagger-ui/index.html
+Frontend: 
+-HTML
+-JavaScript
+-CSS
+
+##API Documentaion
+Swagger UI
+    - available at: http://localhost:8080/swagger-ui/index.html
+![swagger](screenshots/swagger.PNG)
+
+## Running the Application
+mvn clean install
+mvn spring-boot:run
+
+Application runs on: http://locahost:8080
+
+##Application Screenshots
+
+### Login page
+![Login](screenshots/login.PNG)
+### Register page
+![Register](screenshots/register.PNG)
+### Dashboard page
+![Register](screenshots/dashboard.PNG)

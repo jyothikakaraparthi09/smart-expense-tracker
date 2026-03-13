@@ -6,12 +6,13 @@
     <title>Register</title>
 </head>
 <body>
-<H2>Register to Track Expense</H2>
 <div class="container">
+    <H2>Register to Expense Tracker</H2>
 <label>Username:</label><input type="text" id="username" placeholder="username"/>
 <br>
 <label>Password:</label><input type="password" id="password" placeholder="password"/>
-<br>
+<br><label>Confirm Password:</label><input type="password" id="cPassword" placeholder="password" onchange="checkPwd()"/>
+    <br><lable class="error" id="error"></lable>
 <button onclick="register()">Register</button>
 <br>
 <p id="message"></p>

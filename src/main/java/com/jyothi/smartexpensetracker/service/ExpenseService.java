@@ -10,6 +10,8 @@ import com.jyothi.smartexpensetracker.entity.Expense;
 import com.jyothi.smartexpensetracker.repository.ExpenseRepository;
 import com.jyothi.smartexpensetracker.repository.UserRepository;
 import com.jyothi.smartexpensetracker.utility.SecurityUtility;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,10 +37,10 @@ public class ExpenseService {
         this.userRepository = userRepository;
     }
 
-    public ExpenseResponseDTO createExpense(ExpenseRequestDTO requestDTO){
+    @CacheEvict(value = "expenses", key = "#username")
+    public ExpenseResponseDTO createExpense(String username,ExpenseRequestDTO requestDTO){
 
-        String username = SecurityUtility.getCurrentUsername();
-        User user = userRepository.findByUsername(username).orElseThrow();
+       User user = userRepository.findByUsername(username).orElseThrow();
        Expense expense = ExpenseMapper.toEntity(requestDTO);
        expense.setUser(user);
        Expense savedExpense = expenseRepository.save(expense);
@@ -52,9 +54,9 @@ public class ExpenseService {
        return ExpenseMapper.toDTO(expense);
     }
 
-    public Page<ExpenseResponseDTO> getAllExpenses(int page,int size){
+    @Cacheable(value="expenses",key="#username")
+    public Page<ExpenseResponseDTO> getAllExpenses(String username,int page,int size){
 
-        String username = SecurityUtility.getCurrentUsername();
         Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
 
         Page<ExpenseResponseDTO> expenseDTOs = expenseRepository.findByUserUsername(username,pageable).map(ExpenseMapper::toDTO);
@@ -127,7 +129,8 @@ public class ExpenseService {
     }
 
     public Double getTotalExpense(){
-        return expenseRepository.findAll().stream().mapToDouble(Expense :: getAmount).sum();
+        String username = SecurityUtility.getCurrentUsername();
+        return expenseRepository.findAllByUserUsername(username).stream().mapToDouble(Expense :: getAmount).sum();
     }
 
     public Map<String, Double> getTopSpentCategory(){
@@ -139,7 +142,7 @@ public class ExpenseService {
             return Map.of();
         }
 
-        CategorySummary summary = result.get(0);
+        CategorySummary summary = result.getFirst();
 
         return Map.of(
                 (String) summary.getCategory(),

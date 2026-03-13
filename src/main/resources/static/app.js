@@ -5,19 +5,23 @@ async function register(){
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    const response = await fetch("/auth/register",{
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-            username: username,
-            password: password
-        })
-    });
+    const error = document.getElementById("error").enabled;
 
-    if(response.ok){
-        document.getElementById("message").innerText = "User Registered Successfully";
-    }else{
-        document.getElementById("message").innerText = "Unable to register user";
+    if(!error) {
+        const response = await fetch("/auth/register", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        });
+
+        if (response.ok) {
+            document.getElementById("message").innerText = "User Registered Successfully";
+        } else {
+            document.getElementById("message").innerText = "Unable to register user";
+        }
     }
 }
 
@@ -73,6 +77,7 @@ function loadExpenses(){
         .then(data=>{
             const table=document.getElementById("expenseTable");
             table.innerHTML="";
+            console.log(data);
             data.content.forEach(expense => {
                 table.innerHTML+=`<tr><td>${expense.title}</td><td>${expense.amount}</td><td>${expense.category}</td><td>${expense.date}</td></tr>`
             })
@@ -121,4 +126,47 @@ function logout(){
     window.location="login.html";
 }
 
+function totalExpenseAmount(){
+    fetch("/expenses/total-spent",{
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer "+localStorage.getItem("token")
+        }
+    }).then(response => response.json())
+        .then(data => {
+           document.getElementById("totalAmount").innerText = data;
+        }).catch(error => console.error("Error: ", error));
+
+}
+
+function topSpentCategory(){
+    fetch("/expenses/top-category",{
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer "+localStorage.getItem("token")
+        }
+    }).then(response => response.json())
+        .then(data => {
+            Object.entries(data).forEach(([category,amount]) =>{
+                document.getElementById("topCategory").innerText = `${category}  with amount: ${amount}`;
+            })
+        });
+}
+
+function checkPwd(){
+    const password = document.getElementById("password").value;
+    const cPassword = document.getElementById("cPassword").value;
+
+    if(password !== cPassword){
+        document.getElementById("error").enabled = true;
+        document.getElementById("error").innerText = "Password should match!";
+    }else {
+        document.getElementById("error").disabled = true;
+        document.getElementById("error").innerText = "";
+    }
+
+}
+
 loadExpenses();
+totalExpenseAmount();
+topSpentCategory();

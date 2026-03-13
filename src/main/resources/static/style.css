@@ -48,3 +48,7 @@ button:hover{
     margin-top: 10px;
     color: green;
 }
+
+.error{
+    color: red;
+}

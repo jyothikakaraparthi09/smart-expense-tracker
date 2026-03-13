@@ -7,7 +7,7 @@ body{
 .header{
     background:#4caf50;
     color: white;
-    padding: 15px;
+    padding: 2px;
     display: flex;
     justify-content: space-between;
 }
@@ -36,7 +36,7 @@ button{
     color: white;
     border: none;
     cursor: pointer;
-    corner: round;
+    border-radius: 4px;
 }
 
 button:disabled{
@@ -56,4 +56,8 @@ th,td{
 
 th{
     background: #f0f0f0;
+}
+
+.noboarder{
+    border-color: white;
 }

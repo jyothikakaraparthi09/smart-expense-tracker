@@ -6,7 +6,6 @@
     <title>My Expenses Dashboard</title>
 </head>
 <body>
-<h2>My Expenses</h2>
 <div class="header">
     <h2>Expense Tracker</h2>
     <button onclick="logout()">Logout</button>
@@ -50,6 +49,12 @@
             <tbody id="expenseTable"></tbody>
         </table>
         <button id="prevBtn" onclick="prevPage()">Previous</button><span id="pagenumber">1</span><button id="nextBtn" onclick="nextPage()">Next</button>
+    </div>
+    <div class="card">
+        <table class="noboarder">
+            <tr><td>Total Expenses Amount: </td><td id="totalAmount"></td></tr>
+            <tr><td>Top Spent Category:</td><td id="topCategory"></td></tr>
+        </table>
     </div>
 </div>
 <script src="/app.js"></script>

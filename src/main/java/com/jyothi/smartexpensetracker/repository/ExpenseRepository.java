@@ -37,4 +37,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     @Query("SELECT SUM(amount) from Expense")
     Long getTotalAmountSpent();
+
+    List<Expense> findAllByUserUsername(String username);
 }
