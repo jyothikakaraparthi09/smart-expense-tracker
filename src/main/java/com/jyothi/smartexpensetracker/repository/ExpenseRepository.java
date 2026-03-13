@@ -3,6 +3,8 @@ package com.jyothi.smartexpensetracker.repository;
 import com.jyothi.smartexpensetracker.dto.CategorySummary;
 import com.jyothi.smartexpensetracker.entity.Expense;
 import com.jyothi.smartexpensetracker.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,9 +13,9 @@ import java.util.Optional;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
-    List<Expense> findByCategoryAndUserUsername(String category, String username);
+    Page<Expense> findByCategoryAndUserUsername(String category, String username, Pageable pageable);
 
-    List<Expense> findByUserUsername(String username);
+    Page<Expense> findByUserUsername(String username, Pageable pageable);
 
     Optional<Expense> findByIdAndUserUsername(Long id,String username);
 

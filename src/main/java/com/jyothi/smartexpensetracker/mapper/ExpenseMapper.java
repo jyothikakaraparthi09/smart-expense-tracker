@@ -3,6 +3,7 @@ package com.jyothi.smartexpensetracker.mapper;
 import com.jyothi.smartexpensetracker.dto.ExpenseRequestDTO;
 import com.jyothi.smartexpensetracker.dto.ExpenseResponseDTO;
 import com.jyothi.smartexpensetracker.entity.Expense;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
@@ -14,7 +15,7 @@ public class ExpenseMapper {
 
     Logger log = Logger.getLogger(ExpenseMapper.class.getName());
 
-    public Expense toEntity(ExpenseRequestDTO requestDTO){
+    public static Expense toEntity(ExpenseRequestDTO requestDTO){
         Expense expense = new Expense();
         expense.setTitle(requestDTO.title());
         expense.setAmount(requestDTO.amount());
@@ -24,7 +25,7 @@ public class ExpenseMapper {
         return expense;
     }
 
-    public ExpenseResponseDTO toDTO(Expense expense){
+    public static ExpenseResponseDTO toDTO(Expense expense){
 
         return new ExpenseResponseDTO(
                 expense.getId(),
@@ -33,15 +34,5 @@ public class ExpenseMapper {
                 expense.getCategory(),
                 expense.getDate()
         );
-    }
-
-    public List<ExpenseResponseDTO> toListDTOs(List<Expense> expenses){
-        List<ExpenseResponseDTO> expenseDTOs = new LinkedList<>();
-
-        for(Expense expense: expenses){
-            log.info("Expense: "+ expense.getTitle() + " "+ expense.getAmount());
-            expenseDTOs.add(toDTO(expense));
-        }
-        return expenseDTOs;
     }
 }

@@ -10,6 +10,10 @@ import com.jyothi.smartexpensetracker.entity.Expense;
 import com.jyothi.smartexpensetracker.repository.ExpenseRepository;
 import com.jyothi.smartexpensetracker.repository.UserRepository;
 import com.jyothi.smartexpensetracker.utility.SecurityUtility;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -24,38 +28,36 @@ public class ExpenseService {
 
     private final UserRepository userRepository;
 
-    private final ExpenseMapper mapper;
-
     Logger log = Logger.getLogger(ExpenseService.class.getName());
-   public ExpenseService(ExpenseRepository expenseRepository, UserRepository userRepository, ExpenseMapper mapper){
+   public ExpenseService(ExpenseRepository expenseRepository, UserRepository userRepository){
 
         this.expenseRepository = expenseRepository;
         this.userRepository = userRepository;
-        this.mapper = mapper;
     }
 
     public ExpenseResponseDTO createExpense(ExpenseRequestDTO requestDTO){
 
         String username = SecurityUtility.getCurrentUsername();
         User user = userRepository.findByUsername(username).orElseThrow();
-       Expense expense = mapper.toEntity(requestDTO);
+       Expense expense = ExpenseMapper.toEntity(requestDTO);
        expense.setUser(user);
        Expense savedExpense = expenseRepository.save(expense);
 
-        return mapper.toDTO(savedExpense);
+        return ExpenseMapper.toDTO(savedExpense);
 
     }
 
     public ExpenseResponseDTO getExpense(Long id){
        Expense expense = expenseRepository.findById(id).orElseThrow( () -> new ExpenseNotFoundException(("Expense not found with id: "+id)));
-       return mapper.toDTO(expense);
+       return ExpenseMapper.toDTO(expense);
     }
 
-    public List<ExpenseResponseDTO> getAllExpenses(){
+    public Page<ExpenseResponseDTO> getAllExpenses(int page,int size){
 
         String username = SecurityUtility.getCurrentUsername();
-        log.info("Username: {}"+username);
-        List<ExpenseResponseDTO> expenseDTOs = mapper.toListDTOs(expenseRepository.findByUserUsername(username));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
+
+        Page<ExpenseResponseDTO> expenseDTOs = expenseRepository.findByUserUsername(username,pageable).map(ExpenseMapper::toDTO);
         return expenseDTOs;
     }
 
@@ -64,7 +66,7 @@ public class ExpenseService {
         String username = SecurityUtility.getCurrentUsername();
         User user = userRepository.findByUsername(username).orElseThrow();
 
-        Expense expense = mapper.toEntity(request);
+        Expense expense = ExpenseMapper.toEntity(request);
         expense.setUser(user);
         Expense existing = expenseRepository.findByIdAndUserUsername(id,username).orElseThrow(() -> new ExpenseNotFoundException("Expense not found with id: "+id));
 
@@ -75,7 +77,7 @@ public class ExpenseService {
         existing.setAmount(expense.getAmount());
         existing.setCategory(expense.getCategory());
         existing.setDate(expense.getDate());
-        return mapper.toDTO(expenseRepository.save(existing));
+        return ExpenseMapper.toDTO(expenseRepository.save(existing));
     }
 
     public void deleteExpense(Long id){
@@ -87,10 +89,11 @@ public class ExpenseService {
         expenseRepository.deleteById(id);
     }
 
-    public List<ExpenseResponseDTO> getExpensesByCategory(String category){
+    public Page<ExpenseResponseDTO> getExpensesByCategory(String category,int size, int page){
 
         String username = SecurityUtility.getCurrentUsername();
-        return mapper.toListDTOs(expenseRepository.findByCategoryAndUserUsername(category, username));
+        Pageable pageable = PageRequest.of(page,size,Sort.by("date").descending());
+        return expenseRepository.findByCategoryAndUserUsername(category, username, pageable).map(ExpenseMapper::toDTO);
     }
 
     public Map<String, Double> getCategorySummary(){

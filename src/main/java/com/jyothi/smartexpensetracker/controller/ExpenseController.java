@@ -5,6 +5,7 @@ import com.jyothi.smartexpensetracker.dto.ExpenseResponseDTO;
 import com.jyothi.smartexpensetracker.service.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,15 +36,15 @@ public class ExpenseController {
 
     @Operation(summary = "Gets all expenses ")
     @GetMapping
-    public List<ExpenseResponseDTO> getAllExpenses(){
-        return service.getAllExpenses();
+    public Page<ExpenseResponseDTO> getAllExpenses(@RequestParam int size,@RequestParam int page){
+        return service.getAllExpenses(page,size);
     }
 
     @Operation(summary = "Gets all expenses based on the category")
     @GetMapping("/category/{category}")
-    public List<ExpenseResponseDTO> getByCategory(@PathVariable String category)
+    public Page<ExpenseResponseDTO> getByCategory(@PathVariable String category, @RequestParam int size, @RequestParam int page)
     {
-        return service.getExpensesByCategory(category);
+        return service.getExpensesByCategory(category,size, page);
     }
 
     @Operation(summary = "Updates the expense with new data ")

@@ -2,42 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/dashboardstyle.css">
     <title>My Expenses Dashboard</title>
 </head>
 <body>
 <h2>My Expenses</h2>
-<div class="container">
-<br>
-<button onclick="goToAddExpense()">Add Expense</button>
-<br>
-<button onclick="loadExpenses()">Load Expenses</button>
-<ul id="expenseList"></ul>
+<div class="header">
+    <h2>Expense Tracker</h2>
+    <button onclick="logout()">Logout</button>
 </div>
-<script>
-    function goToAddExpense(){
-        window.location.href="/add-expense.html"
-    }
+<div class="container">
+    <div class="card">
+        <h3>Add Expense</h3>
+        <input type="text" id="title" placeholder="title">
+        <input type="number" id="amount" placeholder="number">
 
-    async function loadExpenses(){
-        const token = localStorage.getItem("token");
-        const response = await fetch("/expenses",{
-            headers: { "Authorization": "Bearer "+token}
-        });
+        <select id="category">
+            <option>Food</option>
+            <option>Travel</option>
+            <option>Shopping</option>
+            <option>Bills</option>
+            <option>Miscellaneous</option>
+        </select>
 
-        const expenses = await response.json();
-
-        const list = document.getElementById("expenseList");
-
-        list.innerHTML = "";
-
-        expenses.forEach(exp => {
-            const item = document.createElement("li");
-            item.innerText = exp.title + " : " +exp.amount;
-
-            list.appendChild(item);
-        });
-    }
-</script>
+        <input type="date" id="date" placeholder="date">
+        <button onclick="addExpense()">Add</button>
+    </div>
+    <div class="card">
+        <h4>Fetch Expenses by Category : </h4>
+        <select id="category1">
+            <option>Food</option>
+            <option>Travel</option>
+            <option>Shopping</option>
+            <option>Bills</option>
+            <option>Miscellaneous</option>
+        </select> <button onclick="loadExpensesByCategory()">Load Expenses</button>
+        <h3>Your Expenses</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody id="expenseTable"></tbody>
+        </table>
+        <button id="prevBtn" onclick="prevPage()">Previous</button><span id="pagenumber">1</span><button id="nextBtn" onclick="nextPage()">Next</button>
+    </div>
+</div>
+<script src="/app.js"></script>
 </body>
 </html>
