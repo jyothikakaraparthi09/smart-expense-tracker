@@ -1,49 +1,6 @@
 let currentPage = 0;
 const pageSize = 5;
-
-async function register(){
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    const error = document.getElementById("error").enabled;
-
-    if(!error) {
-        const response = await fetch("/auth/register", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
-        });
-
-        if (response.ok) {
-            document.getElementById("message").innerText = "User Registered Successfully";
-        } else {
-            document.getElementById("message").innerText = "Unable to register user";
-        }
-    }
-}
-
-async function login(){
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    const response = await fetch("/auth/login",{
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            username: username,
-            password: password
-        })
-    })
-        .then(response => response.text())
-            .then(token => {
-                console.log("JWT Token: "+token);
-                localStorage.setItem("token",token);
-                window.location.href = "dashboard.html";
-            });
-}
+let categoryPage = false;
 
 function addExpense(){
     const title = document.getElementById("title").value;
@@ -68,7 +25,8 @@ function addExpense(){
 }
 
 function loadExpenses(){
-    fetch(`/expenses?page=${currentPage}&size=${pageSize}`,{
+
+    fetch(`/expenses/?page=${currentPage}&size=${pageSize}`,{
         method: "GET",
         headers: {
             "Authorization": "Bearer "+localStorage.getItem("token")
@@ -79,17 +37,16 @@ function loadExpenses(){
             table.innerHTML="";
             console.log(data);
             data.content.forEach(expense => {
-                table.innerHTML+=`<tr><td>${expense.title}</td><td>${expense.amount}</td><td>${expense.category}</td><td>${expense.date}</td></tr>`
+                table.innerHTML+=`<tr><td>${expense.title}</td><td>${expense.amount}</td><td>${expense.category}</td><td>${expense.date}</td><td><button onclick="deleteExpense(${expense.id})">Delete</button> </td></tr>`
             })
-            document.getElementById("pagenumber").innerText=currentPage+1;
+            document.getElementById("pagenumber").innerText=data.page+1;
             /* Disable prev & next buttons */
             document.getElementById("prevBtn").disabled = data.first;
             document.getElementById("nextBtn").disabled = data.last;
-        })
+        });
 }
 
 function loadExpensesByCategory(){
-    currentPage = 0;
     const category = document.getElementById("category1").value;
     fetch(`/expenses/category/${category}?page=${currentPage}&size=${pageSize}`,{
         method: "GET",
@@ -103,7 +60,7 @@ function loadExpensesByCategory(){
             data.content.forEach(expense=>{
                 table.innerHTML+=`<tr><td>${expense.title}</td><td>${expense.amount}</td><td>${expense.category}</td><td>${expense.date}</td></tr>`
             })
-            document.getElementById("pagenumber").innerText=catCurrentPage+1;
+            document.getElementById("pagenumber").innerText=data.page+1;
             /* Disable prev & next buttons */
             document.getElementById("prevBtn").disabled = data.first;
             document.getElementById("nextBtn").disabled = data.last;
@@ -111,15 +68,19 @@ function loadExpensesByCategory(){
 }
 
 function nextPage(){
-    currentPage++;
-    loadExpenses();
+        currentPage++;
+        if(categoryPage)
+            loadExpensesByCategory();
+        else
+            loadExpenses();
 }
 
 function prevPage(){
-    if(currentPage > 0){
-        currentPage--;
-    }
-    loadExpenses();
+    currentPage--;
+    if(categoryPage)
+        loadExpensesByCategory();
+    else
+        loadExpenses();
 }
 function logout(){
     localStorage.removeItem("token");
@@ -153,20 +114,95 @@ function topSpentCategory(){
         });
 }
 
-function checkPwd(){
-    const password = document.getElementById("password").value;
-    const cPassword = document.getElementById("cPassword").value;
+function loadCategoryChart(){
+    fetch("/expenses/category-summary",{
+        headers:{
+            "Authorization":"Bearer "+localStorage.getItem("token")
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            const labels = Object.keys(data);
+            const values = Object.values(data);
 
-    if(password !== cPassword){
-        document.getElementById("error").enabled = true;
-        document.getElementById("error").innerText = "Password should match!";
-    }else {
-        document.getElementById("error").disabled = true;
-        document.getElementById("error").innerText = "";
-    }
+            renderPieChart(labels,values);
+        });
+}
+
+function renderPieChart(labels,values){
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'pie',
+        data:{
+            labels: labels,
+            datasets: [{
+                label: 'Expenses',
+                data: values,
+                backgroundColor:['#FF6384','#36A2EB','#FFCE56','#4BC0C0C0','#9966F']
+            }]
+        }
+    });
+}
+
+function loadBarChart(){
+    const currDate = new Date();
+    fetch(`/expenses/monthly-summary/${currDate.getFullYear()}/${currDate.getMonth()+1}`,{
+        headers:{
+            "Authorization":"Bearer "+localStorage.getItem("token")
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+
+            renderBarChart(labels,values);
+        });
+}
+
+function renderBarChart(labels,values){
+    const ctx = document.getElementById("monthlyChart").getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'This Month Expenses',
+                data: values
+            }]
+        }
+    });
+}
+
+function findByCategory(){
+    currentPage = 0;
+    categoryPage = true;
+    loadExpensesByCategory();
+}
+
+function findAllExpenses(){
+    currentPage = 0;
+    categoryPage = false;
+    loadExpenses();
+}
+
+function deleteExpense(id){
+    fetch(`/expenses/${id}`,{
+        method: "DELETE",
+        headers:{
+            "Authorization":"Bearer "+localStorage.getItem("token")
+        },
+    }).then(res=> {document.getElementById("delMessage").innerText = "Expense deleted successfully";
+                            location.reload();});
 
 }
 
-loadExpenses();
-totalExpenseAmount();
-topSpentCategory();
+window.onload = function (){
+    categoryPage = false;
+    loadExpenses();
+    totalExpenseAmount();
+    topSpentCategory();
+    loadCategoryChart();
+    loadBarChart();
+}

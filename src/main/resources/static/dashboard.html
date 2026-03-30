@@ -35,8 +35,9 @@
             <option>Shopping</option>
             <option>Bills</option>
             <option>Miscellaneous</option>
-        </select> <button onclick="loadExpensesByCategory()">Load Expenses</button>
+        </select> <button onclick="findByCategory()">Load Expenses</button>  <button onclick="findAllExpenses()">Load All Expenses</button>
         <h3>Your Expenses</h3>
+        <p id="delMessage"></p>
         <table>
             <thead>
             <tr>
@@ -44,6 +45,7 @@
                 <th>Amount</th>
                 <th>Category</th>
                 <th>Date</th>
+                <th></th>
             </tr>
             </thead>
             <tbody id="expenseTable"></tbody>
@@ -57,6 +59,16 @@
         </table>
     </div>
 </div>
+<div>
+
+</div>
 <script src="/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="container">
+<h3>Expenses by Category</h3>
+<canvas id="categoryChart" width="400" height="200"></canvas>
+<h3>Monthly Expenses</h3>
+<canvas id="monthlyChart" widht="400" height="200"></canvas>
+</div>
 </body>
 </html>

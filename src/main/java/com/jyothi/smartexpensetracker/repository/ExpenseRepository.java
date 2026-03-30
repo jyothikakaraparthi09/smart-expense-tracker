@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,4 +40,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     Long getTotalAmountSpent();
 
     List<Expense> findAllByUserUsername(String username);
+
+    /*@Query("""
+SELECT e FROM Expense e WHERE e.user.username = :username AND (:cursor IS NULL OR e.createdAt < :cursor) 
+ORDER BY e.createdAt DESC
+""")
+    List<Expense> findNextExpenses(String username, LocalDateTime cursor, Pageable pageable);*/
 }

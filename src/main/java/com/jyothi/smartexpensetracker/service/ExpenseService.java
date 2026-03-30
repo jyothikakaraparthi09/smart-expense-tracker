@@ -1,8 +1,6 @@
 package com.jyothi.smartexpensetracker.service;
 
-import com.jyothi.smartexpensetracker.dto.CategorySummary;
-import com.jyothi.smartexpensetracker.dto.ExpenseRequestDTO;
-import com.jyothi.smartexpensetracker.dto.ExpenseResponseDTO;
+import com.jyothi.smartexpensetracker.dto.*;
 import com.jyothi.smartexpensetracker.entity.User;
 import com.jyothi.smartexpensetracker.exception.ExpenseNotFoundException;
 import com.jyothi.smartexpensetracker.mapper.ExpenseMapper;
@@ -18,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ public class ExpenseService {
         this.userRepository = userRepository;
     }
 
-    @CacheEvict(value = "expenses", key = "#username")
+    @CacheEvict(value = "expenses", allEntries = true)
     public ExpenseResponseDTO createExpense(String username,ExpenseRequestDTO requestDTO){
 
        User user = userRepository.findByUsername(username).orElseThrow();
@@ -54,13 +53,11 @@ public class ExpenseService {
        return ExpenseMapper.toDTO(expense);
     }
 
-    @Cacheable(value="expenses",key="#username")
-    public Page<ExpenseResponseDTO> getAllExpenses(String username,int page,int size){
+    public Page<ExpenseResponseDTO> getAllExpenses(String username,int size, int page){
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("date").descending());
+        Pageable pageable = PageRequest.of(page, size);
 
-        Page<ExpenseResponseDTO> expenseDTOs = expenseRepository.findByUserUsername(username,pageable).map(ExpenseMapper::toDTO);
-        return expenseDTOs;
+        return expenseRepository.findByUserUsername(username, pageable).map(ExpenseMapper::toDTO);
     }
 
     public ExpenseResponseDTO updateExpense(Long id, ExpenseRequestDTO request){
@@ -88,6 +85,8 @@ public class ExpenseService {
 
         Expense expense = expenseRepository.findByIdAndUserUsername(id, username)
                         .orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
+
+        log.info("Removing Expense:"+ id);
         expenseRepository.deleteById(id);
     }
 

@@ -32,7 +32,8 @@ public class ExpenseMapper {
                 expense.getTitle(),
                 expense.getAmount(),
                 expense.getCategory(),
-                expense.getDate()
+                expense.getDate(),
+                expense.getCreatedAt()
         );
     }
 }

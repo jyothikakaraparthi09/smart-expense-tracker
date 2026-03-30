@@ -1,5 +1,6 @@
 package com.jyothi.smartexpensetracker.controller;
 
+import com.jyothi.smartexpensetracker.dto.CursorResponse;
 import com.jyothi.smartexpensetracker.dto.ExpenseRequestDTO;
 import com.jyothi.smartexpensetracker.dto.ExpenseResponseDTO;
 import com.jyothi.smartexpensetracker.dto.PageResponse;
@@ -10,14 +11,18 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/expenses")
 public class ExpenseController {
 
     private final ExpenseService service;
+
+    private final Logger log = Logger.getLogger(ExpenseController.class.toString());
 
     public ExpenseController(ExpenseService service){
         this.service = service;
@@ -27,6 +32,7 @@ public class ExpenseController {
     @PostMapping
     public ExpenseResponseDTO addExpense(@Valid @RequestBody ExpenseRequestDTO requestDTO){
         String username = SecurityUtility.getCurrentUsername();
+        log.info("Creating expense for "+username+" with amount : "+requestDTO.amount());
         return service.createExpense(username,requestDTO);
     }
 
@@ -37,10 +43,11 @@ public class ExpenseController {
     }
 
     @Operation(summary = "Gets all expenses ")
-    @GetMapping
-    public PageResponse<ExpenseResponseDTO> getAllExpenses(@RequestParam int size,@RequestParam int page){
+    @GetMapping("/")
+    public PageResponse<ExpenseResponseDTO> getAllExpenses(@RequestParam int size, @RequestParam int page){
         String username = SecurityUtility.getCurrentUsername();
-        Page<ExpenseResponseDTO> expensePage = service.getAllExpenses(username,page,size);
+        Page<ExpenseResponseDTO> expensePage = service.getAllExpenses(username,size,page);
+
         return new PageResponse<>(
                 expensePage.getContent(),
                 expensePage.getNumber(),
@@ -78,6 +85,7 @@ public class ExpenseController {
     @Operation(summary = "Removes expense based on id ")
     @DeleteMapping("/{id}")
     public String deleteExpense(@PathVariable Long id){
+        log.info("Deleting expense id: "+ id);
         service.deleteExpense(id);
 
         return "Expense deleted";
