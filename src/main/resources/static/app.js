@@ -20,7 +20,7 @@ function addExpense(){
             category: category,
             date: date})
         })
-    .then(res=>res.json())
+    .then(res => document.getElementById("expenseMsg").innerText="Expense Added Successfully")
     .then(()=>loadExpenses())
 }
 

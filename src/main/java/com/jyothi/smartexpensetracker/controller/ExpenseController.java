@@ -1,6 +1,5 @@
 package com.jyothi.smartexpensetracker.controller;
 
-import com.jyothi.smartexpensetracker.dto.CursorResponse;
 import com.jyothi.smartexpensetracker.dto.ExpenseRequestDTO;
 import com.jyothi.smartexpensetracker.dto.ExpenseResponseDTO;
 import com.jyothi.smartexpensetracker.dto.PageResponse;
@@ -11,8 +10,6 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -94,19 +91,22 @@ public class ExpenseController {
     @Operation(summary = "Fetches the total amount spend for each category ")
     @GetMapping("/category-summary")
     public Map<String, Double> getCategorySummary(){
-        return service.getCategorySummary();
+        String username = SecurityUtility.getCurrentUsername();
+        return service.getCategorySummary(username);
     }
 
     @Operation(summary = "Gets all the expenses based on Month and Year ")
     @GetMapping("/monthly-summary/{year}/{month}")
     public Map<String, Double> getMonthlySummary(@PathVariable int year, @PathVariable int month){
-        return service.getMonthlySummary(month, year);
+        String username = SecurityUtility.getCurrentUsername();
+        return service.getMonthlySummary(username, month, year);
     }
 
     @Operation(summary = "Sums all expenses amount")
     @GetMapping("/total-spent")
     public Double getTotalAmountSpent(){
-        return service.getTotalExpense();
+        String username = SecurityUtility.getCurrentUsername();
+        return service.getTotalExpense(username);
     }
 
     @Operation(summary = "Fetches the top amount spent category ")

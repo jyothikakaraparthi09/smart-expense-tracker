@@ -34,7 +34,8 @@ public class SecurityConfig {
                                 "login.js",
                                 "**.css",
                                 "**.html",
-                                "/config").permitAll()
+                                "/config",
+                                "/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

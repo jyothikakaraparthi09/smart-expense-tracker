@@ -15,6 +15,7 @@ body{
 .container{
     width: 900px;
     margin: 30px auto;
+    padding: 30px;
 }
 
 .card{
@@ -60,4 +61,10 @@ th{
 
 .noboarder{
     border-color: white;
+}
+
+canvas#categoryChart , canvas#monthlyChart{
+    width: 100px;
+    height: 100px;
+    padding: 10px;
 }

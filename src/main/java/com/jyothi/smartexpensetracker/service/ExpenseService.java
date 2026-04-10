@@ -8,15 +8,12 @@ import com.jyothi.smartexpensetracker.entity.Expense;
 import com.jyothi.smartexpensetracker.repository.ExpenseRepository;
 import com.jyothi.smartexpensetracker.repository.UserRepository;
 import com.jyothi.smartexpensetracker.utility.SecurityUtility;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,27 +27,26 @@ public class ExpenseService {
     private final UserRepository userRepository;
 
     Logger log = Logger.getLogger(ExpenseService.class.getName());
-   public ExpenseService(ExpenseRepository expenseRepository, UserRepository userRepository){
+    public ExpenseService(ExpenseRepository expenseRepository, UserRepository userRepository){
 
         this.expenseRepository = expenseRepository;
         this.userRepository = userRepository;
     }
 
-    @CacheEvict(value = "expenses", allEntries = true)
     public ExpenseResponseDTO createExpense(String username,ExpenseRequestDTO requestDTO){
 
-       User user = userRepository.findByUsername(username).orElseThrow();
-       Expense expense = ExpenseMapper.toEntity(requestDTO);
-       expense.setUser(user);
-       Expense savedExpense = expenseRepository.save(expense);
+        User user = userRepository.findByUsername(username).orElseThrow();
+        Expense expense = ExpenseMapper.toEntity(requestDTO);
+        expense.setUser(user);
+        Expense savedExpense = expenseRepository.save(expense);
 
         return ExpenseMapper.toDTO(savedExpense);
 
     }
 
     public ExpenseResponseDTO getExpense(Long id){
-       Expense expense = expenseRepository.findById(id).orElseThrow( () -> new ExpenseNotFoundException(("Expense not found with id: "+id)));
-       return ExpenseMapper.toDTO(expense);
+        Expense expense = expenseRepository.findById(id).orElseThrow( () -> new ExpenseNotFoundException(("Expense not found with id: "+id)));
+        return ExpenseMapper.toDTO(expense);
     }
 
     public Page<ExpenseResponseDTO> getAllExpenses(String username,int size, int page){
@@ -84,7 +80,7 @@ public class ExpenseService {
         String username = SecurityUtility.getCurrentUsername();
 
         Expense expense = expenseRepository.findByIdAndUserUsername(id, username)
-                        .orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
+                .orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
 
         log.info("Removing Expense:"+ id);
         expenseRepository.deleteById(id);
@@ -97,9 +93,7 @@ public class ExpenseService {
         return expenseRepository.findByCategoryAndUserUsername(category, username, pageable).map(ExpenseMapper::toDTO);
     }
 
-    public Map<String, Double> getCategorySummary(){
-
-        String username = SecurityUtility.getCurrentUsername();
+    public Map<String, Double> getCategorySummary(String username){
 
         List<CategorySummary> results = expenseRepository.findCategorySummary(username);
 
@@ -112,9 +106,7 @@ public class ExpenseService {
         return  summary;
     }
 
-    public Map<String, Double> getMonthlySummary(int month, int year){
-
-        String username = SecurityUtility.getCurrentUsername();
+    public Map<String, Double> getMonthlySummary(String username, int month, int year){
 
         List<CategorySummary> results = expenseRepository.getMonthlySummary(username, month, year);
 
@@ -127,8 +119,7 @@ public class ExpenseService {
         return summary;
     }
 
-    public Double getTotalExpense(){
-        String username = SecurityUtility.getCurrentUsername();
+    public Double getTotalExpense(String username){
         return expenseRepository.findAllByUserUsername(username).stream().mapToDouble(Expense :: getAmount).sum();
     }
 
