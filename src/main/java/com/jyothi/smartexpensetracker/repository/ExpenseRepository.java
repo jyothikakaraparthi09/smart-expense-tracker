@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,6 +41,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     Long getTotalAmountSpent();
 
     List<Expense> findAllByUserUsername(String username);
+
+    @Query("SELECT COALESCE(SUM(e.amount), 0.0) FROM Expense e WHERE e.user.username = :username")
+    Double getTotalAmountSpentByUser(@Param("username") String username);
 
     /*@Query("""
 SELECT e FROM Expense e WHERE e.user.username = :username AND (:cursor IS NULL OR e.createdAt < :cursor) 

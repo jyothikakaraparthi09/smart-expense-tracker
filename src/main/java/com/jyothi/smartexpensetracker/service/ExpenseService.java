@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class ExpenseService {
 
     public ExpenseResponseDTO createExpense(String username,ExpenseRequestDTO requestDTO){
 
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User Not found"));
         Expense expense = ExpenseMapper.toEntity(requestDTO);
         expense.setUser(user);
         Expense savedExpense = expenseRepository.save(expense);
@@ -120,7 +121,7 @@ public class ExpenseService {
     }
 
     public Double getTotalExpense(String username){
-        return expenseRepository.findAllByUserUsername(username).stream().mapToDouble(Expense :: getAmount).sum();
+        return expenseRepository.getTotalAmountSpentByUser(username);
     }
 
     public Map<String, Double> getTopSpentCategory(){
