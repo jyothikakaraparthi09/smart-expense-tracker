@@ -54,8 +54,10 @@ public class UserService {
     public String registerUser(LoginRequest request){
 
         log.info("Registering user");
-        repository.save(new User(request.username(), passwordEncoder.encode(request.password())));
-
-        return "User registered successfully";
+        if(repository.existsByUsername(request.username())) {
+            return "User already exists";
+        }
+            repository.save(new User(request.username(), passwordEncoder.encode(request.password())));
+            return "User registered successfully";
     }
 }
